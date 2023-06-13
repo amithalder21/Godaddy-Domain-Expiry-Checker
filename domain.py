@@ -86,14 +86,20 @@ Your Name""".format(domain, formatted_expiry_date)
 
         domain_list.append((domain, formatted_expiry_date))  # Collect the domain name and expiry date
 
+# Sort the domain list based on expiry date in ascending order
+domain_list.sort(key=lambda x: datetime.strptime(x[1], "%d-%m-%Y"))
+
 # Print the domain list in tabular form
 headers = ["Domain Name", "Expiry Date"]
 tabulated_data = tabulate(domain_list, headers=headers, tablefmt="grid")
 print(tabulated_data)
 
-# Store the tabular data in a temporary file
-tmp_file_path = "domain_list.txt.tmp"
-with open(tmp_file_path, "w") as tmp_file:
-    tmp_file.write(tabulated_data)
-
-print(f"Tabular data stored in {tmp_file_path}")
+# Send the table over Google Chat
+payload = {
+    "text": tabulated_data
+}
+response = requests.post(chat_webhook_url, json=payload)
+if response.status_code == 200:
+    print("Table sent to Google Chat successfully.")
+else:
+    print("Failed to send table to Google Chat.")
