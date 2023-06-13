@@ -15,7 +15,7 @@ This project is a Python script that sends notifications about domain expiry dat
 1. Clone the repository to your local machine:
 
    ```shell
-   git clone https://github.com/your-username/domain-expiry-notification.git
+   git clone [https://github.com/your-username/domain-expiry-notification.git](https://github.com/amit-successive/godaddy-domain-expiry-checker.git
    ```
 
 2. Navigate to the project directory:
