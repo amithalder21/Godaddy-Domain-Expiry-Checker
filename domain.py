@@ -88,4 +88,12 @@ Your Name""".format(domain, formatted_expiry_date)
 
 # Print the domain list in tabular form
 headers = ["Domain Name", "Expiry Date"]
-print(tabulate(domain_list, headers=headers, tablefmt="grid"))
+tabulated_data = tabulate(domain_list, headers=headers, tablefmt="grid")
+print(tabulated_data)
+
+# Store the tabular data in a temporary file
+tmp_file_path = "domain_list.txt.tmp"
+with open(tmp_file_path, "w") as tmp_file:
+    tmp_file.write(tabulated_data)
+
+print(f"Tabular data stored in {tmp_file_path}")
