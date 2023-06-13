@@ -1,9 +1,8 @@
-Sure! Here's an example README file that provides instructions for running the project:
 
 ```
-# Domain Expiry Notification
+# GoDaddy Domain Expiry Checker
 
-This project is a Python script that sends notifications about domain expiry dates via Google Chat and email. It retrieves domain information from a file, checks the expiry dates, and sends notifications if the expiry date is within 30 days.
+This project is a Python script that checks the expiry dates of domains registered with GoDaddy and sends notifications when the expiry date is approaching. It utilizes the GoDaddy API to retrieve domain information and sends notifications via Google Chat and email.
 
 ## Prerequisites
 
@@ -15,13 +14,13 @@ This project is a Python script that sends notifications about domain expiry dat
 1. Clone the repository to your local machine:
 
    ```shell
-   git clone [https://github.com/your-username/domain-expiry-notification.git](https://github.com/amit-successive/godaddy-domain-expiry-checker.git
+   git clone https://github.com/amit-successive/godaddy-domain-expiry-checker.git
    ```
 
 2. Navigate to the project directory:
 
    ```shell
-   cd domain-expiry-notification
+   cd godaddy-domain-expiry-checker
    ```
 
 3. Install the required dependencies:
@@ -53,7 +52,7 @@ This project is a Python script that sends notifications about domain expiry dat
 3. Run the script using the following command:
 
    ```shell
-   python domain_expiry_notification.py
+   python domain.py
    ```
 
    The script will retrieve the expiry dates for the domains in `domain_list.txt` and send notifications if the expiry date is within 30 days.
@@ -66,4 +65,4 @@ This project is a Python script that sends notifications about domain expiry dat
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 ```
 
-You can customize the instructions, add additional sections, or modify it to suit your specific project requirements. Make sure to provide accurate and detailed instructions for users to set up and run the project successfully.
+Please note that this README assumes the existence of a file named `domain_expiry_checker.py` in the repository, based on the provided repository link. You can modify the instructions as needed or provide additional information specific to your project.
