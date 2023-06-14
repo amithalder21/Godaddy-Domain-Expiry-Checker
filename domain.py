@@ -6,6 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from tabulate import tabulate
+import tempfile
 
 # Load environment variables from .env file
 load_dotenv()
@@ -93,6 +94,12 @@ domain_list.sort(key=lambda x: datetime.strptime(x[1], "%d-%m-%Y"))
 headers = ["Domain Name", "Expiry Date"]
 tabulated_data = tabulate(domain_list, headers=headers, tablefmt="grid")
 print(tabulated_data)
+
+# Save the table as a temporary file
+with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp_file:
+    tmp_file.write(tabulated_data)
+    tmp_file_path = tmp_file.name
+    print("Table saved as temporary file:", tmp_file_path)
 
 # Send the table over Google Chat
 payload = {
