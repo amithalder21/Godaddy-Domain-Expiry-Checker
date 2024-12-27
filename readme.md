@@ -6,6 +6,7 @@ This project is a Python script that checks the expiry dates of domains register
 
 - Python 3.6 or higher
 - Pip package manager
+- Docker (optional for containerized deployment)
 
 ## Installation
 
@@ -25,6 +26,48 @@ This project is a Python script that checks the expiry dates of domains register
 
    ```shell
    pip install -r requirements.txt
+   ```
+
+## Docker Setup (Optional)
+
+To run the application in a Docker container:
+
+1. Build the Docker image:
+
+   ```shell
+   docker build -t godaddy-notifier:latest .
+   ```
+
+2. Create a `.env` file in the project directory with the following content:
+
+   ```plaintext
+   GODADDY_API_KEY=your_godaddy_api_key
+   GODADDY_API_SECRET=your_godaddy_api_secret
+   GOOGLE_CHAT_WEBHOOK_URL=your_google_chat_webhook_url
+   SENDER_EMAIL=your_sender_email
+   SENDER_PASSWORD=your_sender_password
+   RECIPIENT_EMAIL=your_recipient_email
+   ENABLE_EMAIL_NOTIFICATIONS=true
+   ```
+
+3. Run the Docker container, passing the `.env` file:
+
+   ```shell
+   docker run --env-file .env godaddy-notifier:latest
+   ```
+
+4. Alternatively, run the Docker container with environment variables directly:
+
+   ```shell
+   docker run -d \                                      
+     -e GODADDY_API_KEY="9EBukYs4Sgf_J75tAYRtZKVXJ18sqZCpPA" \
+     -e GODADDY_API_SECRET="ApquUUtamm9tgyReUrDbTK" \
+     -e GOOGLE_CHAT_WEBHOOK_URL="https://chat.googleapis.com/v1/spaces/AAAAYA7rjAs/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=myuxKGbW7wjUDYciGC5Uw7AbHZ9ef3qmytzOufGlSrY" \
+     -e SENDER_EMAIL="your_email@example.com" \
+     -e SENDER_PASSWORD="your_password" \
+     -e RECIPIENT_EMAIL="recipient_email@example.com" \
+     -e ENABLE_EMAIL_NOTIFICATIONS="true" \
+     godaddy-notifier:latest
    ```
 
 ## Configuration
@@ -52,6 +95,26 @@ This project is a Python script that checks the expiry dates of domains register
 
    ```shell
    python domain.py
+   ```
+
+   OR, if using Docker:
+
+   ```shell
+   docker run --env-file .env godaddy-notifier:latest
+   ```
+
+   OR, use direct environment variables:
+
+   ```shell
+   docker run -d \                                      
+     -e GODADDY_API_KEY="9EBukYs4Sgf_J75tAYRtZKVXJ18sqZCpPA" \
+     -e GODADDY_API_SECRET="ApquUUtamm9tgyReUrDbTK" \
+     -e GOOGLE_CHAT_WEBHOOK_URL="https://chat.googleapis.com/v1/spaces/AAAAYA7rjAs/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=myuxKGbW7wjUDYciGC5Uw7AbHZ9ef3qmytzOufGlSrY" \
+     -e SENDER_EMAIL="your_email@example.com" \
+     -e SENDER_PASSWORD="your_password" \
+     -e RECIPIENT_EMAIL="recipient_email@example.com" \
+     -e ENABLE_EMAIL_NOTIFICATIONS="true" \
+     godaddy-notifier:latest
    ```
 
    The script will:
