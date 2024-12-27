@@ -1,5 +1,3 @@
-datetime
-dotenv
-email
+python-dotenv
 requests
 tabulate
