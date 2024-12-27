@@ -81,16 +81,3 @@ The same table will be sent to Google Chat and, if enabled, via email.
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
-```
-
-### Key Updates:
-1. **`ENABLE_EMAIL_NOTIFICATIONS`**:
-   - Added instructions for enabling or disabling email notifications.
-2. **Removed `domain_list.txt`**:
-   - No need for a `domain_list.txt` file since the script fetches domains directly from the GoDaddy API.
-3. **Updated Usage**:
-   - Clarified that notifications are consolidated in tabular format and sent to Google Chat and optionally via email.
-4. **Example Output**:
-   - Included a sample table to visualize the output.
-
-Let me know if further refinements are needed!
