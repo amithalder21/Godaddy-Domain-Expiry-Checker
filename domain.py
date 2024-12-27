@@ -126,7 +126,7 @@ def main():
         print("Table saved as temporary file:", tmp_file.name)
 
     # Send only the table to Google Chat
-    chat_payload = {"text": f"Domain Expiry Notifications:\n{table}"}
+    chat_payload = {"text": f"GoDaddy Domain Expiry Notifications:\n{table}"}
     chat_response = requests.post(chat_webhook_url, json=chat_payload)
 
     if chat_response.status_code == 200:
