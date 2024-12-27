@@ -2,11 +2,11 @@ import os
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from tabulate import tabulate
+import tempfile
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from tabulate import tabulate
-import tempfile
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,20 +18,42 @@ sender_email = os.getenv("SENDER_EMAIL")
 sender_password = os.getenv("SENDER_PASSWORD")
 recipient_email = os.getenv("RECIPIENT_EMAIL")
 
-domain_list = []  # List to store the domain names and expiry dates
+enable_email_notifications = os.getenv("ENABLE_EMAIL_NOTIFICATIONS", "false").lower() == "true"
 
-file_path = "domain_list.txt"  # Path to the file containing domain names
-with open(file_path, "r") as file:
-    for line in file:
-        domain = line.strip()
+notified_domains = set()  # Global set to track notified domains
 
-        url = f"https://api.godaddy.com/v1/domains/{domain}"
-        headers = {
-            "Authorization": f"sso-key {api_key}:{api_secret}",
-            "Content-Type": "application/json"
-        }
+def fetch_domains_from_api(status="ACTIVE", limit=100):
+    """Fetch domain names from GoDaddy API."""
+    url = f"https://api.godaddy.com/v1/domains?statuses={status}&limit={limit}"
+    headers = {
+        "Authorization": f"sso-key {api_key}:{api_secret}",
+        "Content-Type": "application/json"
+    }
 
+    try:
         response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        domains = response.json()
+        domain_names = [domain["domain"] for domain in domains]
+        return domain_names
+    except Exception as e:
+        print(f"Error fetching domains from API: {e}")
+        return []
+
+def check_and_notify(domain):
+    """Check the domain's expiry date and collect for notifications if needed."""
+    if domain in notified_domains:
+        return None  # Skip if already notified
+
+    url = f"https://api.godaddy.com/v1/domains/{domain}"
+    headers = {
+        "Authorization": f"sso-key {api_key}:{api_secret}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
         data = response.json()
 
         expiry_date_str = data["expires"]
@@ -42,71 +64,78 @@ with open(file_path, "r") as file:
         notification_date = expiry_date - timedelta(days=30)
 
         if today >= notification_date:
-            # Send notification to Google Chat API
-            notification_message = f"The domain {domain} expires on {formatted_expiry_date}. Please take necessary actions."
+            # Add domain to notified list
+            notified_domains.add(domain)
 
-            payload = {
-                "text": notification_message
-            }
-            response = requests.post(chat_webhook_url, json=payload)
-            if response.status_code == 200:
-                print("Google Chat notification sent successfully.")
-            else:
-                print("Failed to send Google Chat notification.")
+        return domain, formatted_expiry_date
 
-            # Send notification via email
-            subject = "Domain Expiry Notification"
-            body = """Hello,
+    except Exception as e:
+        print(f"Error processing domain {domain}: {e}")
+        return domain, "Error"
 
-This is to inform you that the domain {} will expire on {}. Please take the necessary actions.
+def send_email_notification(table):
+    """Send the tabular data via email."""
+    if not enable_email_notifications:
+        print("Email notifications are disabled.")
+        return
 
-Regards,
-Your Name""".format(domain, formatted_expiry_date)
+    subject = "Domain Expiry Notifications"
+    body = f"Hello,\n\nPlease find below the domain expiry notifications:\n\n{table}\n\nRegards,\nYour Team"
 
-            message = MIMEMultipart()
-            message["From"] = sender_email
-            message["To"] = recipient_email
-            message["Subject"] = subject
-            message.attach(MIMEText(body, "plain"))
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = recipient_email
+    message["Subject"] = subject
+    message.attach(MIMEText(body, "plain"))
 
-            try:
-                # Create a secure SSL/TLS connection with the SMTP server
-                smtp = smtplib.SMTP("smtp.gmail.com", 587)
-                smtp.starttls()
-                smtp.login(sender_email, sender_password)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+            smtp.starttls()
+            smtp.login(sender_email, sender_password)
+            smtp.sendmail(sender_email, recipient_email, message.as_string())
+        print("Email notification sent successfully.")
+    except Exception as e:
+        print(f"Failed to send email notification: {e}")
 
-                # Send the email
-                smtp.sendmail(sender_email, recipient_email, message.as_string())
-                print("Email notification sent successfully.")
-            except Exception as e:
-                print("Failed to send email notification.")
-                print(e)
-            finally:
-                # Close the SMTP connection
-                smtp.quit()
+def main():
+    # Fetch domain names from GoDaddy API
+    domain_list = fetch_domains_from_api()
 
-        domain_list.append((domain, formatted_expiry_date))  # Collect the domain name and expiry date
+    if not domain_list:
+        print("No domains found in the GoDaddy account.")
+        return
 
-# Sort the domain list based on expiry date in ascending order
-domain_list.sort(key=lambda x: datetime.strptime(x[1], "%d-%m-%Y"))
+    processed_domains = []
 
-# Print the domain list in tabular form
-headers = ["Domain Name", "Expiry Date"]
-tabulated_data = tabulate(domain_list, headers=headers, tablefmt="grid")
-print(tabulated_data)
+    for domain in domain_list:
+        result = check_and_notify(domain)
+        if result:
+            processed_domains.append(result)
 
-# Save the table as a temporary file
-with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp_file:
-    tmp_file.write(tabulated_data)
-    tmp_file_path = tmp_file.name
-    print("Table saved as temporary file:", tmp_file_path)
+    # Sort domains by expiry date
+    processed_domains.sort(key=lambda x: datetime.strptime(x[1], "%d-%m-%Y") if x[1] != "Error" else datetime.max)
 
-# Send the table over Google Chat
-payload = {
-    "text": tabulated_data
-}
-response = requests.post(chat_webhook_url, json=payload)
-if response.status_code == 200:
-    print("Table sent to Google Chat successfully.")
-else:
-    print("Failed to send table to Google Chat.")
+    # Display domains in a tabular format
+    headers = ["Domain Name", "Expiry Date"]
+    table = tabulate(processed_domains, headers=headers, tablefmt="grid")
+    print(table)
+
+    # Save the table to a temporary file
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp_file:
+        tmp_file.write(table)
+        print("Table saved as temporary file:", tmp_file.name)
+
+    # Send only the table to Google Chat
+    chat_payload = {"text": f"Domain Expiry Notifications:\n{table}"}
+    chat_response = requests.post(chat_webhook_url, json=chat_payload)
+
+    if chat_response.status_code == 200:
+        print("Table sent to Google Chat successfully.")
+    else:
+        print("Failed to send table to Google Chat.")
+
+    # Send email notification if enabled
+    send_email_notification(table)
+
+if __name__ == "__main__":
+    main()
