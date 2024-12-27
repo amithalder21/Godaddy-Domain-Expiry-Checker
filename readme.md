@@ -13,13 +13,13 @@ This project is a Python script that checks the expiry dates of domains register
 1. Clone the repository to your local machine:
 
    ```shell
-   git clone https://github.com/amit-successive/godaddy-domain-expiry-checker.git
+   git clone https://github.com/amit-successive/Godaddy-Domain-Expiry-Notifier.git
    ```
 
 2. Navigate to the project directory:
 
    ```shell
-   cd godaddy-domain-expiry-checker
+   cd Godaddy-Domain-Expiry-Notifier
    ```
 
 3. Install the required dependencies:
