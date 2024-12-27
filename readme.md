@@ -1,8 +1,6 @@
-
-```
 # GoDaddy Domain Expiry Checker
 
-This project is a Python script that checks the expiry dates of domains registered with GoDaddy and sends notifications when the expiry date is approaching. It utilizes the GoDaddy API to retrieve domain information and sends notifications via Google Chat and email.
+This project is a Python script that checks the expiry dates of domains registered with GoDaddy and sends notifications when the expiry date is approaching. It utilizes the GoDaddy API to retrieve domain information and sends notifications via Google Chat and optionally via email.
 
 ## Prerequisites
 
@@ -41,28 +39,58 @@ This project is a Python script that checks the expiry dates of domains register
    SENDER_EMAIL=your_sender_email
    SENDER_PASSWORD=your_sender_password
    RECIPIENT_EMAIL=your_recipient_email
+   ENABLE_EMAIL_NOTIFICATIONS=true
    ```
 
    Replace `your_godaddy_api_key`, `your_godaddy_api_secret`, `your_google_chat_webhook_url`, `your_sender_email`, `your_sender_password`, and `your_recipient_email` with the appropriate values.
 
+   Set `ENABLE_EMAIL_NOTIFICATIONS` to `true` to enable email notifications or `false` to disable them.
+
 ## Usage
 
-1. Create a file named `domain_list.txt` in the project directory.
-2. Add the domain names, each on a separate line, to the `domain_list.txt` file.
-3. Run the script using the following command:
+1. Run the script using the following command:
 
    ```shell
    python domain.py
    ```
 
-   The script will retrieve the expiry dates for the domains in `domain_list.txt` and send notifications if the expiry date is within 30 days.
-   It will also print the domain list with expiry dates in tabular form.
+   The script will:
+   - Retrieve domain details from the GoDaddy API.
+   - Check the expiry dates of the domains.
+   - Send a consolidated notification in tabular format to Google Chat.
+   - Optionally, send an email notification if `ENABLE_EMAIL_NOTIFICATIONS` is set to `true`.
 
-   **Note:** Ensure that the environment variables in the `.env` file are correctly configured before running the script.
+2. The output will also display the domain list with expiry dates in tabular form in the terminal.
+
+## Example Output
+
+A sample table output in the terminal:
+
+```
++--------------------------+---------------+
+| Domain Name              | Expiry Date   |
++==========================+===============+
+| example.com              | 01-01-2025    |
+| example.org              | 15-02-2025    |
+| example.net              | 20-03-2025    |
++--------------------------+---------------+
+```
+
+The same table will be sent to Google Chat and, if enabled, via email.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 ```
 
-Please note that this README assumes the existence of a file named `domain_expiry_checker.py` in the repository, based on the provided repository link. You can modify the instructions as needed or provide additional information specific to your project.
+### Key Updates:
+1. **`ENABLE_EMAIL_NOTIFICATIONS`**:
+   - Added instructions for enabling or disabling email notifications.
+2. **Removed `domain_list.txt`**:
+   - No need for a `domain_list.txt` file since the script fetches domains directly from the GoDaddy API.
+3. **Updated Usage**:
+   - Clarified that notifications are consolidated in tabular format and sent to Google Chat and optionally via email.
+4. **Example Output**:
+   - Included a sample table to visualize the output.
+
+Let me know if further refinements are needed!
